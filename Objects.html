@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Simple Objects</title>
+		
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #ffffff;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		
+
+		<script src="three.js"></script>
+		<script src="AWDLoader.js"></script>
+		<script src="OrbitControls.js"></script>
+		<script src="Detector.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container;
+
+			var camera, scene, renderer, objects, controls;
+			var particleLight, pointLight;
+			var trunk;
+
+			var loader = new THREE.AWDLoader();
+
+			loader.materialFactory = createMaterial;
+			loader.load( './models/awd/simple/simple.awd', function ( _trunk ) {
+
+				trunk = _trunk;
+
+				init();
+				render();
+
+			} );
+
+
+			//MATERIAL
+			function createMaterial( name ){
+				console.log( name );
+				var mat = new THREE.MeshPhongMaterial({
+				color: 0xF3FFE2,
+				shininess: 40
+
+				});
+			    return mat;
+			}
+
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.set( 70, 50, -100 );
+
+				controls = new THREE.OrbitControls( camera );
+
+				scene = new THREE.Scene();
+
+
+				// Add the AWD SCENE
+
+				scene.add( trunk );
+
+
+				// Lights
+
+				scene.add( new THREE.AmbientLight( 0x606060 ) );
+
+				var directionalLight = new THREE.DirectionalLight(0xeeeeee );
+				directionalLight.position.set( .2, -1, .2 );
+				directionalLight.position.normalize();
+				scene.add( directionalLight );
+
+				pointLight = new THREE.PointLight( 0xffffff, .6 );
+				scene.add( pointLight );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+
+
+			function render() {
+
+				requestAnimationFrame( render );
+
+				var timer = Date.now() * 0.0005;
+
+				pointLight.position.x = Math.sin( timer * 4 ) * 3000;
+				pointLight.position.y = 600;
+				pointLight.position.z = Math.cos( timer * 4 ) * 3000;
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
